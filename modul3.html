@@ -204,6 +204,63 @@
       font-size: 2rem;
       box-shadow: 0 8px 24px rgba(67, 160, 71, 0.4);
     }
+
+    /* ═══ Scenario Option Cards ═══ */
+    .scenario-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .scenario-option {
+      display: block;
+      cursor: pointer;
+    }
+    .scenario-option input[type="radio"] {
+      display: none;
+    }
+    .scenario-option-body {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem 1.15rem;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      transition: all 0.25s ease;
+      font-size: 0.875rem;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.78);
+    }
+    .scenario-option-body:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(56,189,248,0.3);
+    }
+    .scenario-option input[type="radio"]:checked + .scenario-option-body {
+      background: rgba(33,150,243,0.12);
+      border-color: rgba(33,150,243,0.6);
+      box-shadow: 0 0 0 3px rgba(33,150,243,0.1);
+      color: #ffffff;
+    }
+    .scenario-letter {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+      transition: all 0.25s ease;
+    }
+    .scenario-option input[type="radio"]:checked + .scenario-option-body .scenario-letter {
+      background: linear-gradient(135deg, #1565C0, #00ACC1);
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(21,101,192,0.4);
+    }
   </style>
 </head>
 <body>
@@ -328,6 +385,158 @@
           </div>
         </div>
 
+        <!-- ═══ BAGIAN A: KARAKTERISTIK SOSIAL ═══ -->
+        <div style="margin: 2rem 0 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+          <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.25rem;">🧩 A. Karakteristik Sosial</h2>
+          <p style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Pilih jawaban yang paling sesuai dengan dirimu</p>
+        </div>
+
+        <!-- Skenario 1 -->
+        <div class="form-group">
+          <label class="form-label">1. Hari pertama MPLS, kamu baru saja masuk ke ruangan kelas dan duduk di bangku. Kakak panitia belum masuk dan suasana masih agak canggung. Apa yang akan kamu lakukan?</label>
+          <div class="scenario-options">
+            <label class="scenario-option">
+              <input type="radio" name="skenario1" value="Mudah Bergaul" required>
+              <div class="scenario-option-body">
+                <span class="scenario-letter">A</span>
+                <span>Langsung menyapa teman sebangku atau yang duduk di dekatku untuk berkenalan dan mengobrol santai.</span>
+              </div>
+            </label>
+            <label class="scenario-option">
+              <input type="radio" name="skenario1" value="Cenderung Pendiam">
+              <div class="scenario-option-body">
+                <span class="scenario-letter">B</span>
+                <span>Duduk tenang di kursiku, mengamati suasana kelas, dan menunggu sampai acara dimulai atau ada yang menyapa duluan.</span>
+              </div>
+            </label>
+            <label class="scenario-option">
+              <input type="radio" name="skenario1" value="Suka Menolong">
+              <div class="scenario-option-body">
+                <span class="scenario-letter">C</span>
+                <span>Membantu merapikan barisan meja atau menawarkan bantuan jika ada teman yang terlihat kebingungan mencari tempat duduk.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Skenario 2 -->
+        <div class="form-group">
+          <label class="form-label">2. Saat kegiatan MPLS, kelompokmu diberi waktu 15 menit untuk membuat yel-yel kelompok. Bagaimana peranmu di dalam kelompok tersebut?</label>
+          <div class="scenario-options">
+            <label class="scenario-option">
+              <input type="radio" name="skenario2" value="Mudah Bergaul / Dominan" required>
+              <div class="scenario-option-body">
+                <span class="scenario-letter">A</span>
+                <span>Aktif melemparkan ide lirik atau gerakan, dan langsung mengajak teman-teman lain untuk mulai berlatih.</span>
+              </div>
+            </label>
+            <label class="scenario-option">
+              <input type="radio" name="skenario2" value="Suka Menolong / Suportif">
+              <div class="scenario-option-body">
+                <span class="scenario-letter">B</span>
+                <span>Mengambil peran untuk mencatat ide-ide dari teman di kertas atau mengatur barisan agar kelompok cepat selesai dan rapi.</span>
+              </div>
+            </label>
+            <label class="scenario-option">
+              <input type="radio" name="skenario2" value="Cenderung Pendiam / Observan">
+              <div class="scenario-option-body">
+                <span class="scenario-letter">C</span>
+                <span>Mendengarkan ide dari teman-teman dengan saksama, lalu mengikuti dan mempraktikkan kesepakatan kelompok dengan baik.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Skenario 3 -->
+        <div class="form-group">
+          <label class="form-label">3. Di tengah sesi pengisian formulir atau mencatat materi dari guru, teman di sebelahmu panik karena bolpoinnya macet atau hilang. Apa reaksimu?</label>
+          <div class="scenario-options">
+            <label class="scenario-option">
+              <input type="radio" name="skenario3" value="Suka Menolong / Empati Tinggi" required>
+              <div class="scenario-option-body">
+                <span class="scenario-letter">A</span>
+                <span>Tanpa diminta, aku langsung menyodorkan bolpoin cadangan yang aku bawa agar dia bisa segera mencatat.</span>
+              </div>
+            </label>
+            <label class="scenario-option">
+              <input type="radio" name="skenario3" value="Mudah Bergaul / Solutif">
+              <div class="scenario-option-body">
+                <span class="scenario-letter">B</span>
+                <span>Bertanya padanya apa yang hilang, lalu karena aku tidak punya cadangan, aku berinisiatif menanyakan ke teman lain di kelas untuk meminjamkannya.</span>
+              </div>
+            </label>
+            <label class="scenario-option">
+              <input type="radio" name="skenario3" value="Cenderung Pendiam">
+              <div class="scenario-option-body">
+                <span class="scenario-letter">C</span>
+                <span>Menyadari dia sedang kesulitan, namun aku ragu untuk ikut campur, jadi aku hanya akan meminjamkan alat tulis jika dia benar-benar bertanya kepadaku.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- ═══ BAGIAN B: KARAKTERISTIK AKADEMIK (GAYA BELAJAR) ═══ -->
+        <div style="margin: 2rem 0 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+          <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.25rem;">📚 B. Karakteristik Akademik (Gaya Belajar)</h2>
+          <p style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Skenario pada kegiatan penerimaan materi di dalam ruangan selama MPLS</p>
+        </div>
+
+        <!-- Skenario 4 -->
+        <div class="form-group">
+          <label class="form-label">4. Saat sesi pengenalan tata tertib dan budaya sekolah (Wawasan Wiyata Mandala), cara apa yang membuatmu paling cepat paham dan ingat?</label>
+          <div class="scenario-options">
+            <label class="scenario-option">
+              <input type="radio" name="skenario4" value="Visual" required>
+              <div class="scenario-option-body">
+                <span class="scenario-letter">A</span>
+                <span>Membaca buku panduan MPLS atau melihat poin-poin yang ditampilkan di layar proyektor dengan teliti.</span>
+              </div>
+            </label>
+            <label class="scenario-option">
+              <input type="radio" name="skenario4" value="Auditori">
+              <div class="scenario-option-body">
+                <span class="scenario-letter">B</span>
+                <span>Mendengarkan penjelasan dan cerita dari guru atau kakak panitia yang sedang berbicara di depan kelas.</span>
+              </div>
+            </label>
+            <label class="scenario-option">
+              <input type="radio" name="skenario4" value="Kinestetik">
+              <div class="scenario-option-body">
+                <span class="scenario-letter">C</span>
+                <span>Lebih mudah paham setelah diajak melakukan simulasi langsung, misalnya saat praktik cara memberi salam atau baris-berbaris.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Skenario 5 -->
+        <div class="form-group">
+          <label class="form-label">5. Dalam materi 'Aku dan Sekolahku', kamu harus mengetahui letak perpustakaan, laboratorium, dan kantin. Apa yang paling membantumu mengingat lokasinya?</label>
+          <div class="scenario-options">
+            <label class="scenario-option">
+              <input type="radio" name="skenario5" value="Visual" required>
+              <div class="scenario-option-body">
+                <span class="scenario-letter">A</span>
+                <span>Melihat denah sekolah yang digambar di papan tulis atau brosur.</span>
+              </div>
+            </label>
+            <label class="scenario-option">
+              <input type="radio" name="skenario5" value="Auditori">
+              <div class="scenario-option-body">
+                <span class="scenario-letter">B</span>
+                <span>Mengingat petunjuk arah yang diucapkan panitia ("Dari kelas ini, lurus lalu belok kanan setelah ruang guru").</span>
+              </div>
+            </label>
+            <label class="scenario-option">
+              <input type="radio" name="skenario5" value="Kinestetik">
+              <div class="scenario-option-body">
+                <span class="scenario-letter">C</span>
+                <span>Aku baru akan benar-benar hafal setelah aku berjalan kaki langsung melewati rute tersebut nanti.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <button type="submit" class="btn-submit">Kirim Data</button>
       </form>
     </div>
@@ -396,6 +605,11 @@
       alergiDetail: document.querySelector('#alergiDetail input').value,
       kebutuhanKhusus: document.querySelector('input[name="kebutuhanKhusus"]:checked').value,
       kebutuhanKhususDetail: document.querySelector('#kebutuhanKhususDetail input').value,
+      skenario1: (document.querySelector('input[name="skenario1"]:checked') || {}).value || '',
+      skenario2: (document.querySelector('input[name="skenario2"]:checked') || {}).value || '',
+      skenario3: (document.querySelector('input[name="skenario3"]:checked') || {}).value || '',
+      skenario4: (document.querySelector('input[name="skenario4"]:checked') || {}).value || '',
+      skenario5: (document.querySelector('input[name="skenario5"]:checked') || {}).value || '',
       timestamp: new Date().toISOString()
     };
 
