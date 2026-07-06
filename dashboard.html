@@ -375,9 +375,14 @@
             <button class="btn btn-primary btn-sm" onclick="exportRegistrasiCSV()" id="exportRegBtn">📥 Export CSV</button>
           </div>
           <div class="dash-card-body">
-            <div class="table-search">
-              <div class="search-box">
-                <input type="text" id="registrasiSearch" class="form-control" placeholder="🔍 Cari nama, username, peleton..." aria-label="Cari registrasi" />
+            <div class="table-search" style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
+              <div class="search-box" style="flex: 1; min-width: 250px; margin-bottom: 0;">
+                <input type="text" id="registrasiSearch" class="form-control" placeholder="🔍 Cari nama atau username..." aria-label="Cari registrasi" />
+              </div>
+              <div class="filter-box" style="min-width: 200px;">
+                <select id="peletonFilter" class="form-control" style="padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 2px solid var(--gray-200); cursor: pointer;" aria-label="Filter Peleton">
+                  <option value="">✨ Semua Peleton</option>
+                </select>
               </div>
             </div>
             <div style="overflow-x:auto;">

@@ -32,7 +32,12 @@ document.addEventListener('DOMContentLoaded', function () {
       if (jsonSiswa.status === 'success' && jsonSiswa.data) {
         localStorage.setItem('sapa_siswa_db', JSON.stringify(jsonSiswa.data));
         registrasiData = jsonSiswa.data;
-        if (typeof renderRegistrasiTable === 'function') {
+        if (typeof populatePeletonFilter === 'function') {
+          populatePeletonFilter(registrasiData);
+        }
+        if (typeof filterRegistrasiData === 'function') {
+          filterRegistrasiData();
+        } else if (typeof renderRegistrasiTable === 'function') {
           renderRegistrasiTable(registrasiData);
         }
       }
@@ -299,6 +304,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // ── Registrasi Siswa Table ──────────────────────────────────
   const registrasiTbody = document.getElementById('registrasiTbody');
   const registrasiSearch = document.getElementById('registrasiSearch');
+  const peletonFilter = document.getElementById('peletonFilter');
   
   // Load data from sapa_siswa_db
   registrasiData = JSON.parse(localStorage.getItem('sapa_siswa_db') || '[]');
@@ -366,20 +372,41 @@ document.addEventListener('DOMContentLoaded', function () {
     }).join('');
   }
 
-  // Initial render
+  // Populate peleton filter dropdown dynamically
+  function populatePeletonFilter(data) {
+    if (!peletonFilter) return;
+    const currentVal = peletonFilter.value;
+    const uniquePeletons = [...new Set(data.map(s => s.peleton).filter(Boolean))].sort();
+    peletonFilter.innerHTML = '<option value="">✨ Semua Peleton</option>' + 
+      uniquePeletons.map(p => `<option value="${p}">${p}</option>`).join('');
+    if (uniquePeletons.includes(currentVal)) {
+      peletonFilter.value = currentVal;
+    }
+  }
+
+  // Filter both search query and peleton dropdown selection
+  function filterRegistrasiData() {
+    const q = (registrasiSearch ? registrasiSearch.value : '').toLowerCase();
+    const peletonVal = peletonFilter ? peletonFilter.value : '';
+    const filtered = registrasiData.filter(s => {
+      const matchQuery = (s.nama || '').toLowerCase().includes(q) ||
+                         (s.username || '').toLowerCase().includes(q);
+      const matchPeleton = peletonVal === '' || s.peleton === peletonVal;
+      return matchQuery && matchPeleton;
+    });
+    renderRegistrasiTable(filtered);
+  }
+
+  // Initial render & dropdown population
+  populatePeletonFilter(registrasiData);
   renderRegistrasiTable(registrasiData);
 
-  // Search logic
+  // Filter event listeners
   if (registrasiSearch) {
-    registrasiSearch.addEventListener('input', () => {
-      const q = registrasiSearch.value.toLowerCase();
-      const filtered = registrasiData.filter(s =>
-        (s.nama || '').toLowerCase().includes(q) ||
-        (s.username || '').toLowerCase().includes(q) ||
-        (s.peleton || '').toLowerCase().includes(q)
-      );
-      renderRegistrasiTable(filtered);
-    });
+    registrasiSearch.addEventListener('input', filterRegistrasiData);
+  }
+  if (peletonFilter) {
+    peletonFilter.addEventListener('change', filterRegistrasiData);
   }
 
   // View detail modal
