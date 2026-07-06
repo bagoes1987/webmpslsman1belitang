@@ -137,6 +137,9 @@ switch ($action) {
                 waktu VARCHAR(50) NOT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
+            // Clean test user if exists
+            $pdo->exec("DELETE FROM siswa WHERE username = 'test_user_1'");
+
             // Check if siswa table is empty to trigger import
             $stmt = $pdo->query("SELECT COUNT(*) FROM siswa");
             $count = $stmt->fetchColumn();

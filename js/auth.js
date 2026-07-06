@@ -5214,7 +5214,7 @@ async function initDatabaseServer() {
         const importRes = await fetch('api.php?action=import_siswa', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'import_siswa', data: REGISTERED_SISWA })
+          body: JSON.stringify({ action: 'import_siswa', data: ORIGINAL_SISWA_DB })
         });
         const importJson = await importRes.json();
         console.log(importJson.message);
