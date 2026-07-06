@@ -421,14 +421,101 @@
     }
     .shake { animation: shake 0.4s ease; }
 
+    /* Overrides to prevent style.css conflicts and restore glassmorphism */
+    .admin-login-page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .admin-login-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3rem 3.5rem;
+      position: relative;
+    }
+    .admin-login-left::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 10%; bottom: 10%;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.12), transparent);
+    }
+    .admin-login-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: transparent !important; /* Ensure it is transparent so the admin-bg is visible */
+    }
+    .admin-login-card {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(10, 20, 50, 0.45) !important;
+      backdrop-filter: blur(30px) !important;
+      -webkit-backdrop-filter: blur(30px) !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.02) inset,
+        0 32px 80px rgba(0,0,0,0.5),
+        0 0 60px rgba(21,101,192,0.15);
+      animation: cardIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .admin-login-card .form-control {
+      background: rgba(255, 255, 255, 0.04) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      color: #ffffff !important;
+      border-radius: 14px !important;
+      padding: 0.875rem 1.125rem 0.875rem 2.75rem !important;
+      font-size: 0.9375rem !important;
+      transition: all 0.3s ease !important;
+    }
+    .admin-login-card .form-control:focus {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: #00ACC1 !important;
+      box-shadow: 0 0 0 4px rgba(0, 172, 193, 0.2) !important;
+    }
+    .admin-login-card .form-label {
+      color: rgba(255, 255, 255, 0.75) !important;
+      font-size: 0.875rem !important;
+      font-weight: 500 !important;
+      margin-bottom: 0.5rem !important;
+      display: block !important;
+      text-align: left !important;
+    }
+    .admin-login-card .input-wrap, .admin-login-card .password-wrap {
+      position: relative;
+    }
+    .admin-login-card .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.4);
+      font-size: 1.1rem;
+      pointer-events: none;
+    }
+    .admin-login-card .form-control::placeholder {
+      color: rgba(255,255,255,0.3) !important;
+    }
+    .admin-login-card .pw-toggle {
+      color: rgba(255,255,255,0.5) !important;
+    }
+    .admin-login-card .pw-toggle:hover {
+      color: rgba(255,255,255,0.8) !important;
+    }
     @media (max-width: 900px) {
       body { overflow: auto; }
-      .login-page { grid-template-columns: 1fr; }
-      .login-left { display: none; }
-      .login-right { min-height: 100vh; }
+      .admin-login-page { grid-template-columns: 1fr; }
+      .admin-login-left { display: none; }
+      .admin-login-right { min-height: 100vh; }
     }
     @media (max-width: 480px) {
-      .login-card { padding: 1.75rem; border-radius: 20px; }
+      .admin-login-card { padding: 1.75rem; border-radius: 20px; }
     }
   </style>
 </head>
@@ -439,10 +526,10 @@
   <div class="admin-bg-grid"></div>
 </div>
 
-<div class="login-page">
+<div class="admin-login-page">
 
   <!-- Left Branding Panel -->
-  <div class="login-left" aria-hidden="true">
+  <div class="admin-login-left" aria-hidden="true">
     <div class="login-left-inner">
       <div class="brand-logo-mark">&#127979;</div>
       <h1 class="brand-title">Portal Admin<br><span>SAPA Smansabel</span></h1>
@@ -487,8 +574,8 @@
   </div>
 
   <!-- Right Login Form -->
-  <div class="login-right">
-    <div class="login-card">
+  <div class="admin-login-right">
+    <div class="admin-login-card">
 
       <a href="index.html" class="back-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
