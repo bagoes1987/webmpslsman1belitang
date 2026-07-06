@@ -66,18 +66,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // Clear any old local storage demo data on first load to start completely fresh
+  if (!localStorage.getItem('sapa_clean_v2')) {
+    localStorage.removeItem('sapa_murid');
+    localStorage.removeItem('sapa_ckg');
+    localStorage.setItem('sapa_clean_v2', 'true');
+    muridData = [];
+    ckgData = [];
+  }
+
   // Run sync in background
   syncAdminDataFromServer();
 
-  // ── Seed demo data if empty (Fallback) ──────────────────────
-  if (muridData.length === 0) {
-    muridData = getDemoMurid();
-    localStorage.setItem('sapa_murid', JSON.stringify(muridData));
-  }
-  if (ckgData.length === 0) {
-    ckgData = getDemoCKG();
-    localStorage.setItem('sapa_ckg', JSON.stringify(ckgData));
-  }
+  // ── Logout Handler ──────────────────────────────────────────
+  document.querySelectorAll('[data-logout]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (confirm('Apakah Anda yakin ingin keluar dari panel admin?')) {
+        sessionStorage.removeItem('sapa_admin_session');
+        window.location.href = 'admin.html';
+      }
+    });
+  });
 
   // ── Statistics ─────────────────────────────────────────────
   const totalMurid   = muridData.length;
