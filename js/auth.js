@@ -5126,7 +5126,8 @@ const AUTH_SESSION_KEY = "sapa_siswa_session";
 
 // ── Fungsi Login ──
 function loginSiswa(username, password) {
-  const siswa = SISWA_DB.find(
+  const SISWA_DB_LIVE = JSON.parse(localStorage.getItem('sapa_siswa_db')) || [];
+  const siswa = SISWA_DB_LIVE.find(
     s => s.username.toUpperCase() === username.toUpperCase() && 
          s.password.toUpperCase() === password.trim().toUpperCase()
   );
