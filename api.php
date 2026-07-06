@@ -17,9 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // ── DATABASE CONFIGURATION ──────────────────────────────────
 // Configure these credentials in your Hostinger cPanel
 $db_host = "localhost";
-$db_user = ""; // Replace with your MySQL username
-$db_pass = ""; // Replace with your MySQL password
-$db_name = ""; // Replace with your MySQL database name
+$db_user = "n1667321_mpls"; // Replace with your MySQL username
+$db_pass = "#sm@n1belitang2023#"; // Replace with your MySQL password
+$db_name = "n1667321_mpls"; // Replace with your MySQL database name
 
 // Gemini API Key (Split into two parts to prevent GitHub Push Protection scanner block)
 $gem_p1 = 'AQ.Ab8RN6JWh8SG8T0YgV';
