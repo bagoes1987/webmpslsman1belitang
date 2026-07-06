@@ -105,10 +105,11 @@
       margin-bottom: 2rem;
     }
     .login-brand-logo {
+      display: block !important;
+      margin: 0 auto 1rem !important;
       width: 80px;
       height: 80px;
       object-fit: contain;
-      margin-bottom: 1rem;
       filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.3));
       animation: logoFloat 4s ease-in-out infinite;
     }
@@ -279,7 +280,12 @@
       </div>
       <div class="login-form-group">
         <label class="login-form-label" for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" class="login-form-input" placeholder="Masukkan password" required />
+        <div style="position: relative;">
+          <input type="password" id="loginPassword" class="login-form-input" style="padding-right: 3rem;" placeholder="Masukkan password" required />
+          <button type="button" id="togglePassword" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 1.1rem; padding: 0; outline: none;" aria-label="Tampilkan/sembunyikan password">
+            👁️
+          </button>
+        </div>
       </div>
 
       <button type="submit" id="loginBtn" class="login-btn">🚀 Masuk</button>
@@ -293,6 +299,17 @@
     // Jika sudah login, langsung ke dashboard siswa
     if (isLoggedIn()) {
       window.location.href = 'dashboard_siswa.html';
+    }
+
+    // Toggle Password Visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('loginPassword');
+    if (togglePassword && passwordInput) {
+      togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.textContent = type === 'password' ? '👁️' : '🙈';
+      });
     }
 
     document.getElementById('loginSiswaForm').addEventListener('submit', function(e) {
