@@ -93,6 +93,7 @@ switch ($action) {
             // Create Table: siswa
             $pdo->exec("CREATE TABLE IF NOT EXISTS siswa (
                 username VARCHAR(50) PRIMARY KEY,
+                password VARCHAR(100) DEFAULT '',
                 nama VARCHAR(100) NOT NULL,
                 gender VARCHAR(20) NOT NULL,
                 peleton VARCHAR(50) NOT NULL,
@@ -103,6 +104,13 @@ switch ($action) {
                 no_wa VARCHAR(30) DEFAULT '',
                 foto LONGTEXT
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            // Force add password column if table already existed without it
+            try {
+                $pdo->exec("ALTER TABLE siswa ADD COLUMN password VARCHAR(100) DEFAULT '' AFTER username");
+            } catch (PDOException $e) {
+                // Column might already exist, ignore
+            }
 
             // Create Table: deteksi_dini
             $pdo->exec("CREATE TABLE IF NOT EXISTS deteksi_dini (
@@ -163,9 +171,10 @@ switch ($action) {
 
         try {
             $pdo->beginTransaction();
-            $stmt = $pdo->prepare("INSERT INTO siswa (username, nama, gender, peleton, asal_sekolah, nisn, nis, ttl, no_wa, foto) 
-                VALUES (:username, :nama, :gender, :peleton, :asal_sekolah, :nisn, :nis, :ttl, :no_wa, :foto)
+            $stmt = $pdo->prepare("INSERT INTO siswa (username, password, nama, gender, peleton, asal_sekolah, nisn, nis, ttl, no_wa, foto) 
+                VALUES (:username, :password, :nama, :gender, :peleton, :asal_sekolah, :nisn, :nis, :ttl, :no_wa, :foto)
                 ON DUPLICATE KEY UPDATE 
+                password = VALUES(password),
                 nama = VALUES(nama),
                 gender = VALUES(gender),
                 peleton = VALUES(peleton),
@@ -174,6 +183,7 @@ switch ($action) {
             foreach ($input['data'] as $s) {
                 $stmt->execute([
                     ':username' => $s['username'],
+                    ':password' => isset($s['password']) ? $s['password'] : '',
                     ':nama' => $s['nama'],
                     ':gender' => $s['gender'],
                     ':peleton' => $s['peleton'],
