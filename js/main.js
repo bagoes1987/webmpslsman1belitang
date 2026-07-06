@@ -5,6 +5,22 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
+  // ── Dynamic Navbar Login/Dashboard link ────────────────────
+  const studentSession = sessionStorage.getItem("sapa_siswa_session");
+  if (studentSession) {
+    document.querySelectorAll('a[href="login_siswa.html"]').forEach(link => {
+      link.href = 'dashboard_siswa.html';
+      link.innerHTML = '👤 Dasbor Siswa';
+    });
+  }
+  const adminSession = sessionStorage.getItem("sapa_admin_session");
+  if (adminSession) {
+    document.querySelectorAll('a[href="admin.html"]').forEach(link => {
+      link.href = 'dashboard.html';
+      link.innerHTML = '⚙️ Dasbor Admin';
+    });
+  }
+
   // ── Smooth Scroll for anchor links ────────────────────────
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {

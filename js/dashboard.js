@@ -240,6 +240,165 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e.target === detailOverlay) detailOverlay.classList.add('hidden');
   });
 
+  // ── Registrasi Siswa Table ──────────────────────────────────
+  const registrasiTbody = document.getElementById('registrasiTbody');
+  const registrasiSearch = document.getElementById('registrasiSearch');
+  
+  // Load data from sapa_siswa_db
+  let registrasiData = JSON.parse(localStorage.getItem('sapa_siswa_db') || '[]');
+
+  function renderRegistrasiTable(data) {
+    if (!registrasiTbody) return;
+    if (data.length === 0) {
+      registrasiTbody.innerHTML = `
+        <tr class="empty-row">
+          <td colspan="8">
+            <div style="text-align:center; padding: 3rem 0; color: var(--gray-400);">
+              <div style="font-size:3rem; margin-bottom:1rem;">📭</div>
+              <div style="font-weight:600; font-size:1rem; color:var(--gray-600);">Belum ada data siswa</div>
+            </div>
+          </td>
+        </tr>`;
+      return;
+    }
+
+    registrasiTbody.innerHTML = data.map((s, idx) => {
+      // Profile status: Complete if any of nisn, nis, ttl, wa, or foto has been filled
+      const isComplete = (s.nisn && s.nisn.trim() !== '') || 
+                         (s.nis && s.nis.trim() !== '') || 
+                         (s.ttl && s.ttl.trim() !== '') || 
+                         (s.no_wa && s.no_wa.trim() !== '') ||
+                         (s.foto && s.foto.trim() !== '');
+
+      const statusBadge = isComplete
+        ? `<span class="badge badge-normal">✅ Lengkap</span>`
+        : `<span class="badge badge-kurang" style="background:var(--gray-100);color:var(--gray-600);border:1px solid var(--gray-300);">⏳ Kosong</span>`;
+
+      // Render photo preview or avatar
+      let fotoCell = '';
+      if (s.foto && s.foto.trim() !== '') {
+        fotoCell = `<img src="${s.foto}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1.5px solid var(--blue-500);display:block;margin:0 auto;" />`;
+      } else {
+        const emoji = s.gender.toUpperCase() === 'PEREMPUAN' ? '👩‍🎓' : '👨‍🎓';
+        const color = s.gender.toUpperCase() === 'PEREMPUAN' ? 'linear-gradient(135deg, #ec4899, #be185d)' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+        fotoCell = `<div style="width:40px;height:40px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:1.25rem;margin:0 auto;">${emoji}</div>`;
+      }
+
+      const nisnNis = (s.nisn || s.nis) 
+        ? `${s.nisn || '—'} / ${s.nis || '—'}`
+        : `<span style="color:var(--gray-400);font-style:italic;font-size:0.85rem;">Belum Diisi</span>`;
+
+      return `
+        <tr>
+          <td>${idx + 1}</td>
+          <td style="text-align:center;">${fotoCell}</td>
+          <td>
+            <div style="font-weight:600;color:var(--gray-900);">${s.nama || '—'}</div>
+            <div style="font-size:0.8rem;color:var(--gray-500);font-family:monospace;">${s.username || '—'}</div>
+          </td>
+          <td>${s.peleton || '—'}</td>
+          <td>${nisnNis}</td>
+          <td>${s.no_wa || '<span style="color:var(--gray-400);font-style:italic;font-size:0.85rem;">Belum Diisi</span>'}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <button onclick="viewRegistrasi('${s.username}')"
+              style="background:var(--blue-50);border:none;color:var(--blue-700);padding:0.35rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">
+              👁 Detail
+            </button>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  // Initial render
+  renderRegistrasiTable(registrasiData);
+
+  // Search logic
+  if (registrasiSearch) {
+    registrasiSearch.addEventListener('input', () => {
+      const q = registrasiSearch.value.toLowerCase();
+      const filtered = registrasiData.filter(s =>
+        (s.nama || '').toLowerCase().includes(q) ||
+        (s.username || '').toLowerCase().includes(q) ||
+        (s.peleton || '').toLowerCase().includes(q)
+      );
+      renderRegistrasiTable(filtered);
+    });
+  }
+
+  // View detail modal
+  window.viewRegistrasi = function (username) {
+    const db = JSON.parse(localStorage.getItem('sapa_siswa_db') || '[]');
+    const s = db.find(s => s.username === username);
+    if (!s) return;
+
+    const overlay = document.getElementById('detailModalOverlay');
+    const content = document.getElementById('detailContent');
+    if (!overlay || !content) return;
+
+    let fotoHtml = '';
+    if (s.foto && s.foto.trim() !== '') {
+      fotoHtml = `<img src="${s.foto}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid var(--blue-500);box-shadow:0 8px 20px rgba(0,0,0,0.15);" />`;
+    } else {
+      if (s.gender.toUpperCase() === 'PEREMPUAN') {
+        fotoHtml = `
+          <div style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg, #ec4899, #be185d);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,0.15);">
+            <span style="font-size:3.5rem;">👩‍🎓</span>
+          </div>`;
+      } else {
+        fotoHtml = `
+          <div style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg, #3b82f6, #1d4ed8);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,0.15);">
+            <span style="font-size:3.5rem;">👨‍🎓</span>
+          </div>`;
+      }
+    }
+
+    const fields = [
+      ['Nama Lengkap', s.nama],
+      ['Username / Login', s.username],
+      ['Peleton / Gugus', s.peleton],
+      ['Tempat, Tanggal Lahir', s.ttl || '<span style="color:var(--red-500);font-style:italic;">Belum diisi oleh siswa</span>'],
+      ['Asal Sekolah', s.asal_sekolah],
+      ['NISN', s.nisn || '<span style="color:var(--red-500);font-style:italic;">Belum diisi oleh siswa</span>'],
+      ['NIS', s.nis || '<span style="color:var(--red-500);font-style:italic;">Belum diisi oleh siswa</span>'],
+      ['Jenis Kelamin', s.gender],
+      ['No. WhatsApp', s.no_wa || '<span style="color:var(--red-500);font-style:italic;">Belum diisi oleh siswa</span>'],
+    ];
+
+    content.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:1.5rem;margin-bottom:1.5rem;padding:1rem;background:var(--gray-50);border-radius:12px;">
+        ${fotoHtml}
+        <div style="text-align:center;">
+          <div style="font-size:1.25rem;font-weight:700;color:var(--gray-900);">${s.nama}</div>
+          <div style="font-size:0.875rem;color:var(--gray-500);font-weight:600;margin-top:0.25rem;">${s.peleton}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        ${fields.map(([label, val]) => `
+          <div style="padding:0.75rem;background:var(--gray-50);border-radius:8px;">
+            <div style="font-size:0.75rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;margin-bottom:0.25rem;">${label}</div>
+            <div style="font-size:0.9375rem;color:var(--gray-800);font-weight:500;">${val}</div>
+          </div>
+        `).join('')}
+      </div>`;
+    overlay.classList.remove('hidden');
+  };
+
+  // Export CSV logic
+  window.exportRegistrasiCSV = function () {
+    const db = JSON.parse(localStorage.getItem('sapa_siswa_db') || '[]');
+    const headers = ['No','Nama','Username','Peleton','Asal Sekolah','NISN','NIS','TTL','No WA','Gender'];
+    const rows = db.map((s, i) => [
+      i+1, s.nama||'', s.username||'', s.peleton||'', s.asal_sekolah||'', s.nisn||'', s.nis||'', s.ttl||'', s.no_wa||'', s.gender||''
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'database-siswa-mpls.csv'; a.click();
+    URL.revokeObjectURL(url);
+  };
+
   // ── Mobile sidebar toggle ───────────────────────────────────
   const sidebarToggle = document.getElementById('sidebarToggle');
   const sidebar = document.querySelector('.sidebar');

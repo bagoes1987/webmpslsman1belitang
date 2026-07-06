@@ -128,6 +128,9 @@
       <a class="sidebar-nav-item" data-tab-trigger="tabCKG" href="#">
         <span class="nav-icon">🏥</span> Data CKG
       </a>
+      <a class="sidebar-nav-item" data-tab-trigger="tabRegistrasi" href="#">
+        <span class="nav-icon">🗂️</span> Registrasi Siswa
+      </a>
 
       <div class="sidebar-nav-label" style="margin-top:var(--space-4);">Lainnya</div>
       <a class="sidebar-nav-item" href="index.html" target="_blank">
@@ -362,6 +365,48 @@
         </div>
       </div>
 
+      <!-- ══════════════════════════════
+           TAB: REGISTRASI SISWA
+      ══════════════════════════════ -->
+      <div class="tab-panel" id="tabRegistrasi" role="tabpanel" aria-label="Tab Registrasi Siswa">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div class="dash-card-title">🗂️ Database Registrasi Mandiri Siswa (Excel & Profil)</div>
+            <button class="btn btn-primary btn-sm" onclick="exportRegistrasiCSV()" id="exportRegBtn">📥 Export CSV</button>
+          </div>
+          <div class="dash-card-body">
+            <div class="table-search">
+              <div class="search-box">
+                <input type="text" id="registrasiSearch" class="form-control" placeholder="🔍 Cari nama, username, peleton..." aria-label="Cari registrasi" />
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="data-table" role="table" aria-label="Tabel registrasi siswa">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Foto</th>
+                    <th scope="col">Nama / Username</th>
+                    <th scope="col">Peleton</th>
+                    <th scope="col">NISN / NIS</th>
+                    <th scope="col">No. WA</th>
+                    <th scope="col">Status Profil</th>
+                    <th scope="col">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="registrasiTbody">
+                  <tr>
+                    <td colspan="8" style="text-align:center;padding:3rem;color:var(--gray-400);">
+                      <div style="animation:spin 1s linear infinite;display:inline-block;width:30px;height:30px;border:3px solid var(--blue-100);border-top-color:var(--blue-500);border-radius:50%;"></div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- .dashboard-content -->
   </main>
 </div>
@@ -380,8 +425,8 @@
   </div>
 </div>
 
-<script src="js/auth.js"></script>
-<script src="js/dashboard.js"></script>
+<script src="js/auth.js?v=3"></script>
+<script src="js/dashboard.js?v=2"></script>
 <script>
   // ── Chart rendering (inline after data loads) ────────────
   document.addEventListener('DOMContentLoaded', function () {

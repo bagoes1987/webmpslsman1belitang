@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <script src="js/auth.js?v=3"></script>
+  <script>requireLogin();</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Siswa – SAPA SMAN 1 Belitang</title>
+  <meta name="description" content="Portal dan Dasbor Profil Siswa Masa Pengenalan Lingkungan Sekolah (MPLS) Ramah 2026 SMAN 1 Belitang." />
+  <link rel="icon" href="Logo Smansa.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    /* Custom adjustments for student dashboard profile view */
+    .student-avatar-wrapper {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      padding: 4px;
+      background: linear-gradient(135deg, var(--blue-500), var(--sky-400));
+      box-shadow: 0 8px 24px rgba(37,99,235,0.25);
+      margin: 0 auto 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .student-avatar-wrapper svg, .student-avatar-wrapper img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--navy-900);
+      z-index: 1;
+    }
+    
+    .peleton-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 1rem;
+      background: rgba(37,99,235,0.1);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      color: var(--blue-400);
+      font-weight: 700;
+      font-size: 0.8rem;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.5rem;
+    }
+
+    /* Modal styling for editing profile */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 8, 26, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 500px;
+      background: var(--navy-900);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 1.25rem;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+      overflow: hidden;
+      margin: 1.5rem;
+    }
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--navy-950);
+    }
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--gray-400);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .modal-close:hover {
+      color: #fff;
+    }
+    .modal-body {
+      padding: 1.5rem;
+      max-height: 65vh;
+      overflow-y: auto;
+    }
+    .modal-footer {
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      background: var(--navy-950);
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gray-400);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.75rem;
+      color: #fff;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .form-control:focus {
+      border-color: var(--blue-500);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.25);
+    }
+    .btn {
+      padding: 0.7rem 1.25rem;
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-family: var(--font);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+      color: #fff;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 4px 15px rgba(37,99,235,0.35);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--gray-300);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+    
+    .profile-card-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      padding: 1rem;
+    }
+    @media (min-width: 768px) {
+      .profile-card-content {
+        grid-template-columns: 240px 1fr;
+      }
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+    @media (min-width: 600px) {
+      .info-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .info-card {
+      padding: 1.25rem;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .info-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .info-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+    .info-value.empty {
+      color: var(--red-500);
+      font-style: italic;
+      font-weight: 400;
+    }
+    .wa-link {
+      color: var(--teal-500);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 700;
+    }
+    .wa-link:hover {
+      color: var(--teal-400);
+      text-decoration: underline;
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+      animation: fadeIn 0.4s ease both;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Asas List & Timeline custom styles */
+    .asas-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+    .asas-list li { display: flex; align-items: flex-start; gap: 1rem; }
+    .asas-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--blue-500);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .asas-text { color: var(--gray-700); font-size: 0.95rem; line-height: 1.5; }
+    
+    .prohibition-list { list-style: none; display: flex; flex-direction: column; gap: 0.85rem; }
+    .prohibition-list li { display: flex; align-items: flex-start; gap: 0.75rem; color: var(--gray-700); font-size: 0.95rem; }
+    .prohibition-list li::before { content: "❌"; font-size: 0.85rem; flex-shrink: 0; margin-top: 0.2rem; }
+    
+    .info-box {
+      padding: 1.25rem;
+      background: rgba(37,99,235,0.04);
+      border-left: 4px solid var(--blue-500);
+      border-radius: 0 8px 8px 0;
+      color: var(--gray-700);
+    }
+    .info-box h4 { margin-bottom: 0.5rem; color: var(--navy-800); }
+    .info-box ol { margin-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+
+    /* Fix background colors for material cards inside dark dashboard */
+    .material-card {
+      background: #ffffff;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-card);
+    }
+    .material-card-header {
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #fff;
+    }
+    .material-card-header.hdr-navy { background: var(--navy-800); }
+    .material-card-header.hdr-teal { background: var(--teal-500); }
+    .material-card-header.hdr-blue { background: var(--blue-600); }
+    .material-card-header.hdr-red { background: var(--red-500); }
+    .material-card-icon { font-size: 1.25rem; }
+    .material-card-title { font-weight: 700; font-size: 1rem; }
+    .material-card-body { padding: 1.5rem; color: var(--gray-700); }
+    .material-card-body p { margin-bottom: 1rem; }
+    .material-card-body p:last-child { margin-bottom: 0; }
+
+    /* Module grid cards */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .modules-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    .module-card {
+      background: #ffffff;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      transition: var(--transition);
+      box-shadow: var(--shadow-card);
+      height: 100%;
+    }
+    .module-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      border-color: var(--blue-300);
+    }
+    .module-card-stripe {
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 4px;
+    }
+    .module-card-stripe.stripe-blue { background: var(--blue-500); }
+    .module-card-stripe.stripe-teal { background: var(--teal-500); }
+    .module-card-stripe.stripe-indigo { background: #6366f1; }
+    
+    .module-icon-wrap {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .icon-bg-blue { background: rgba(37,99,235,0.1); color: var(--blue-500); }
+    .icon-bg-teal { background: rgba(20,184,166,0.1); color: var(--teal-500); }
+    .icon-bg-indigo { background: rgba(99,102,241,0.1); color: #6366f1; }
+    
+    .module-card-title { font-size: 1.1rem; font-weight: 700; color: var(--gray-900); margin: 0; }
+    .module-card-desc { font-size: 0.875rem; color: var(--gray-500); line-height: 1.5; margin: 0; }
+    .module-card-arrow {
+      font-size: 0.85rem; font-weight: 700; color: var(--blue-500);
+      display: flex; align-items: center; gap: 0.25rem; margin-top: auto;
+    }
+
+    .section-head { margin-bottom: 2.5rem; text-align: center; }
+    .section-eyebrow {
+      display: inline-block;
+      font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--blue-500); margin-bottom: 0.5rem;
+      padding: 0.25rem 0.75rem; background: rgba(37,99,235,0.06);
+      border-radius: 99px;
+    }
+    .section-title-lg { font-size: 1.75rem; font-weight: 800; color: var(--navy-900); margin: 0; }
+    .section-title-lg .accent { color: var(--blue-500); }
+    .section-subtitle-text { font-size: 0.95rem; color: var(--gray-500); margin-top: 0.5rem; }
+
+    /* Bottom Navigation Bar for Mobile */
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(3, 8, 26, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 1000;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 0.5rem;
+      box-shadow: 0 -8px 24px rgba(0,0,0,0.3);
+    }
+    
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.65rem;
+      font-weight: 600;
+      gap: 0.15rem;
+      transition: all 0.2s ease;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex: 1;
+      height: 100%;
+      font-family: var(--font);
+    }
+    .bottom-nav-item .nav-icon {
+      font-size: 1.35rem;
+      transition: transform 0.2s ease;
+    }
+    .bottom-nav-item.active {
+      color: var(--sky-300);
+    }
+    .bottom-nav-item.active .nav-icon {
+      transform: scale(1.15);
+    }
+
+    /* Mobile Responsive Adjustments */
+    @media (max-width: 767px) {
+      .sidebar {
+        display: none !important;
+      }
+      .sidebar-overlay {
+        display: none !important;
+      }
+      .dashboard-main {
+        margin-left: 0 !important;
+        padding-bottom: 74px !important; /* space for bottom nav */
+      }
+      .dashboard-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 400;
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 0 1rem;
+        height: 56px;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #sidebarToggle {
+        display: none !important; /* hide hamburger menu since we have bottom nav */
+      }
+      .topbar-title {
+        font-size: 1rem !important;
+        text-align: center;
+        width: 100%;
+        margin-left: 0;
+        color: var(--gray-900);
+      }
+      .topbar-right {
+        position: absolute;
+        right: 1rem;
+      }
+      .topbar-date {
+        display: none; /* hide date to save space */
+      }
+      .dashboard-content {
+        padding: 1.25rem 1rem !important;
+      }
+      .bottom-nav {
+        display: flex;
+      }
+      
+      .profile-card-content {
+        grid-template-columns: 1fr !important;
+        padding: 1.25rem !important;
+        gap: 1.5rem !important;
+      }
+      
+      /* Make list items look neat on mobile */
+      .asas-list li, .prohibition-list li {
+        font-size: 0.875rem !important;
+      }
+    }
+
+    /* Responsive Logout Button Text */
+    @media (max-width: 480px) {
+      #topbarLogoutBtn span {
+        display: none;
+      }
+      #topbarLogoutBtn {
+        padding: 0.4rem 0.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard-layout">
+
+  <!-- ══════════════════════════════
+       SIDEBAR (DESKTOP)
+  ══════════════════════════════ -->
+  <aside class="sidebar" role="navigation" aria-label="Navigasi Sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <img src="Logo Smansa.png" alt="Logo SMAN 1 Belitang" style="height:32px; width:32px; object-fit:contain;" />
+        <div>
+          <div class="sidebar-name">SAPA Smansabel</div>
+          <div class="sidebar-sub">Portal Siswa</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student details in sidebar -->
+    <div style="padding: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.06); text-align:center;">
+      <div id="sidebarStudentAvatar" style="width: 70px; height: 70px; border-radius:50%; margin: 0 auto 0.75rem; overflow:hidden; border: 2px solid var(--blue-400); display: flex; align-items: center; justify-content: center; background: var(--navy-950);">
+        <!-- Rendered dynamically -->
+      </div>
+      <div style="font-weight:700; color:#fff; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="sidebarStudentNama">Nama Siswa</div>
+      <div style="font-size:0.75rem; color:var(--blue-300); font-weight:600;" id="sidebarStudentPeleton">Peleton X</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-nav-label">Menu Portal</div>
+      
+      <a class="sidebar-nav-item active" data-tab-trigger="tabProfil" href="#" aria-current="page">
+        <span class="nav-icon">👤</span> Profil Siswa
+      </a>
+      <a class="sidebar-nav-item" data-tab-trigger="tabKetentuan" href="#">
+        <span class="nav-icon">📖</span> Ketentuan Umum
+      </a>
+      <a class="sidebar-nav-item" data-tab-trigger="tabPelaksanaan" href="#">
+        <span class="nav-icon">🚀</span> Pelaksanaan Kegiatan
+      </a>
+      <a class="sidebar-nav-item" data-tab-trigger="tabKegiatan" href="#">
+        <span class="nav-icon">🛠️</span> Kegiatan Siswa
+      </a>
+
+      <div class="sidebar-nav-label" style="margin-top:var(--space-4);">Lainnya</div>
+      <a class="sidebar-nav-item" href="#" id="sidebarLogoutBtn">
+        <span class="nav-icon">🚪</span> Keluar
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Sidebar mobile overlay (legacy fallback) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ══════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════ -->
+  <main class="dashboard-main" role="main">
+
+    <!-- Topbar (Sticky Header) -->
+    <div class="dashboard-topbar">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <button id="sidebarToggle" class="nav-toggle" style="display:flex;" aria-label="Toggle sidebar">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="topbar-title" id="topbarTitle">👤 Profil Siswa</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="topbarDate" data-date></div>
+        <button class="btn btn-sm" style="background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3); font-family:'Inter',sans-serif; display: flex; align-items: center; gap: 0.35rem;" id="topbarLogoutBtn">
+          🚪 <span>Keluar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dashboard Content Area -->
+    <div class="dashboard-content">
+
+      <!-- ── TAB PANEL: PROFIL SISWA ── -->
+      <div class="tab-panel active" id="tabProfil">
+        <div class="dash-card">
+          <div class="dash-card-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="dash-card-title">📝 Kartu Identitas Siswa</div>
+            <button class="btn btn-primary btn-sm" id="openEditModalBtn" style="font-size:0.8rem; padding:0.4rem 0.9rem;">⚙️ Edit Profil</button>
+          </div>
+          <div class="dash-card-body" style="padding: 0;">
+            
+            <div class="profile-card-content">
+              
+              <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 1.5rem 0; border-right:1px solid rgba(0,0,0,0.05);">
+                <div class="student-avatar-wrapper" id="siswaAvatar">
+                  <!-- Rendered dynamically -->
+                </div>
+                <h3 style="font-size:1.35rem; font-weight:800; color:var(--navy-900); margin:0;" id="siswaNamaHeader">Nama Siswa</h3>
+                <span class="peleton-tag" id="siswaPeletonBadge">Peleton X</span>
+              </div>
+
+              <div>
+                <div class="info-grid">
+                  <div class="info-card">
+                    <span class="info-label">Nama Lengkap</span>
+                    <span class="info-value" id="siswaNama">Nama Lengkap</span>
+                  </div>
+                  <div class="info-card">
+                    <span class="info-label">Username / Login</span>
+                    <span class="info-value" id="siswaUsername" style="font-family:monospace;">MPLS26PXXX</span>
+                  </div>
+                  <div class="info-card">
+                    <span class="info-label">Peleton / Gugus</span>
+                    <span class="info-value" id="siswaPeleton">Peleton X</span>
+                  </div>
+                  <div class="info-card">
+                    <span class="info-label">Tempat, Tanggal Lahir (TTL)</span>
+                    <span class="info-value" id="siswaTTL">Belum Diisi</span>
+                  </div>
+                  <div class="info-card">
+                    <span class="info-label">Asal Sekolah</span>
+                    <span class="info-value" id="siswaSekolah">SMP Asal Sekolah</span>
+                  </div>
+                  <div class="info-card">
+                    <span class="info-label">NISN</span>
+                    <span class="info-value" id="siswaNISN">Belum Diisi</span>
+                  </div>
+                  <div class="info-card">
+                    <span class="info-label">NIS</span>
+                    <span class="info-value" id="siswaNIS">Belum Diisi</span>
+                  </div>
+                  <div class="info-card">
+                    <span class="info-label">Jenis Kelamin</span>
+                    <span class="info-value" id="siswaGender">LAKI-LAKI</span>
+                  </div>
+                  <div class="info-card" style="grid-column: span 1;">
+                    <span class="info-label">No. WhatsApp</span>
+                    <span id="siswaWAContainer">
+                      <!-- Rendered dynamically -->
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB PANEL: KETENTUAN UMUM ── -->
+      <div class="tab-panel" id="tabKetentuan">
+        <div class="section-head">
+          <span class="section-eyebrow">📖 Pembahasan BAB I</span>
+          <h2 class="section-title-lg">Ketentuan <span class="accent">Umum</span></h2>
+          <p class="section-subtitle-text">Panduan komprehensif terkait asas, ketentuan, ruang lingkup, materi wajib, dan larangan selama MPLS.</p>
+        </div>
+
+        <div class="material-stack">
+          <!-- A -->
+          <div class="material-card">
+            <div class="material-card-header hdr-navy">
+              <div class="material-card-icon">🏫</div>
+              <div class="material-card-title">A. Tentang MPLS Ramah</div>
+            </div>
+            <div class="material-card-body">
+              <p>Masa Pengenalan Lingkungan Sekolah atau nama lainnya yang selanjutnya disebut <strong>MPLS</strong> adalah kegiatan pertama bagi murid baru yang dilakukan oleh sekolah untuk menumbuhkan dan memperkuat karakter serta profil lulusan.</p>
+              <p><strong>MPLS Ramah</strong> adalah kegiatan pertama bagi murid baru yang dilakukan oleh sekolah untuk menumbuhkan dan memperkuat karakter serta profil lulusan dengan memuliakan dan menghormati hak anak melalui pemberian pengalaman belajar yang berkesadaran, bermakna, dan bergembira. Ramah berarti ramah anak, ramah lingkungan, dan ramah biaya.</p>
+              <p>Penyelenggaraan MPLS Ramah bertujuan untuk membantu murid baru dalam menggali dan mengenali potensi diri, mengenal warga sekolah, serta mengenal kurikulum dan lingkungan sekolah sekaligus menjadi gerbang awal pembentukan budaya sekolah aman dan nyaman.</p>
+            </div>
+          </div>
+
+          <!-- B -->
+          <div class="material-card">
+            <div class="material-card-header hdr-teal">
+              <div class="material-card-icon">⚖️</div>
+              <div class="material-card-title">B. Asas Penyelenggaraan MPLS Ramah</div>
+            </div>
+            <div class="material-card-body">
+              <ul class="asas-list">
+                <li><span class="asas-num">1</span><span class="asas-text"><strong>Humanis:</strong> Memandang individu sebagai manusia bermartabat, dihormati haknya, tanpa kekerasan.</span></li>
+                <li><span class="asas-num">2</span><span class="asas-text"><strong>Komprehensif:</strong> Pendekatan menyeluruh dalam mendukung tumbuh kembang anak secara terpadu.</span></li>
+                <li><span class="asas-num">3</span><span class="asas-text"><strong>Partisipatif:</strong> Pelibatan berkesadaran warga sekolah dalam menciptakan lingkungan yang aman dan nyaman.</span></li>
+                <li><span class="asas-num">4</span><span class="asas-text"><strong>Kepentingan Terbaik Anak:</strong> Pengambilan keputusan yang mengutamakan pemenuhan hak anak.</span></li>
+                <li><span class="asas-num">5</span><span class="asas-text"><strong>Nondiskriminatif:</strong> Perlakuan tanpa membedakan suku, agama, kondisi fisik maupun intelektual.</span></li>
+                <li><span class="asas-num">6</span><span class="asas-text"><strong>Inklusif:</strong> Mengakomodasi dan menjamin penyertaan penuh penyandang disabilitas.</span></li>
+                <li><span class="asas-num">7</span><span class="asas-text"><strong>Keadilan Gender:</strong> Relasi sejajar laki-laki dan perempuan untuk mendapatkan perlakuan adil.</span></li>
+                <li><span class="asas-num">8</span><span class="asas-text"><strong>Harmonis:</strong> Hubungan selaras dan berkeadaban antar seluruh warga sekolah.</span></li>
+                <li><span class="asas-num">9</span><span class="asas-text"><strong>Berkelanjutan:</strong> Penyelenggaraan budaya aman dan nyaman yang menjadi rutinitas permanen.</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- C & D -->
+          <div class="material-card">
+            <div class="material-card-header hdr-blue">
+              <div class="material-card-icon">📋</div>
+              <div class="material-card-title">C &amp; D. Ketentuan dan Ruang Lingkup Materi</div>
+            </div>
+            <div class="material-card-body">
+              <p>Pelaksanaan MPLS Ramah terdiri atas <strong>Materi Utama</strong> dan <strong>Materi Pilihan</strong>. Kegiatan dilaksanakan selama <strong>5 hari</strong> (minggu pertama tahun ajaran) di lingkungan sekolah dengan panitia yang terdiri dari Kepala Sekolah, Guru, dan Tenaga Kependidikan.</p>
+              <div class="info-box" style="margin-top: 1.5rem;">
+                <h4>🎯 6 Materi Utama MPLS:</h4>
+                <ol>
+                  <li><strong>Gerakan 7 Kebiasaan Anak Indonesia Hebat (G7KAIH):</strong> Bangun Pagi, Beribadah, Berolahraga, Makan Sehat, Gemar Belajar, Bermasyarakat, Tidur Cepat.</li>
+                  <li><strong>Pagi Ceria:</strong> Senam, menyanyi Indonesia Raya, berdoa.</li>
+                  <li><strong>Sopan Santun Bermedia Sosial:</strong> Interaksi digital beradab and aman.</li>
+                  <li><strong>Budaya 5S:</strong> Senyum, Salam, Sapa, Sopan, Santun.</li>
+                  <li><strong>Gerakan ASRI:</strong> Aman, Sehat, Resik, Indah di lingkungan sekolah.</li>
+                  <li><strong>Gerakan Rukun Sama Teman:</strong> Empati, gotong royong, anti perundungan.</li>
+                </ol>
+                <br>
+                <h4>✨ Materi Pilihan:</h4>
+                <ol>
+                  <li>Ciri Khas dan Tradisi Sekolah.</li>
+                  <li>Materi tambahan spesifik seperti bahaya NAPZA, fenomena perilaku remaja.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <!-- E -->
+          <div class="material-card">
+            <div class="material-card-header hdr-red">
+              <div class="material-card-icon">🚫</div>
+              <div class="material-card-title">E. Larangan Tegas Penyelenggaraan</div>
+            </div>
+            <div class="material-card-body">
+              <ul class="prohibition-list">
+                <li>Melakukan perpeloncoan atau segala bentuk kekerasan fisik dan mental lainnya.</li>
+                <li>Melakukan pungutan biaya (uang/barang) dari orang tua atau peserta didik.</li>
+                <li>Memberikan aktivitas atau tugas yang tidak relevan dengan tujuan pendidikan MPLS.</li>
+                <li>Mewajibkan penggunaan atribut yang tidak edukatif dan menyulitkan siswa.</li>
+                <li>Melibatkan alumni sebagai penyelenggara kepanitiaan MPLS.</li>
+                <li>Melibatkan murid yang bermasalah (riwayat kekerasan/indisipliner) dalam panitia pendamping.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB PANEL: PELAKSANAAN KEGIATAN ── -->
+      <div class="tab-panel" id="tabPelaksanaan">
+        <div class="section-head">
+          <span class="section-eyebrow">📅 BAB III: Pelaksanaan MPLS Ramah</span>
+          <h2 class="section-title-lg">Rangkaian <span class="accent">Kegiatan 5 Hari</span></h2>
+          <p class="section-subtitle-text">Susunan acara utama dan pilihan (durasi 300 menit/hari) di SMA/SMK.</p>
+        </div>
+
+        <div class="material-stack">
+          <!-- Hari 1 -->
+          <div class="material-card">
+            <div class="material-card-header hdr-navy">
+              <div class="material-card-icon">1️⃣</div>
+              <div class="material-card-title">Hari Pertama</div>
+            </div>
+            <div class="material-card-body">
+              <ol style="margin-left: 1rem; line-height: 1.8; color: var(--gray-700);">
+                <li><strong>Salam Sapa Murid Baru:</strong> Menciptakan lingkungan inklusif.</li>
+                <li><strong>Upacara Bendera:</strong> (SEB No 9 Tahun 2026) (30 menit)</li>
+                <li><strong>Pengenalan Diri:</strong> Ice breaking & interaksi (15 menit)</li>
+                <li><strong>Wawasan Wiyata Mandala:</strong> Pengenalan visi, misi, dan budaya (40 menit)</li>
+                <li><strong>Aku dan Sekolahku & Aku dan Sekitarku:</strong> Pengenalan fasilitas sekolah (95 menit)</li>
+                <li><strong>Aku Anak Indonesia Hebat, Karakterku Kuat:</strong> G7KAIH (75 menit)</li>
+                <li><strong>Keadaban dan Keamanan Digital:</strong> (35 menit)</li>
+                <li><strong>Refleksi, Doa, dan Penutup:</strong> (10 menit)</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Hari 2 -->
+          <div class="material-card">
+            <div class="material-card-header hdr-teal">
+              <div class="material-card-icon">2️⃣</div>
+              <div class="material-card-title">Hari Kedua</div>
+            </div>
+            <div class="material-card-body">
+              <ol style="margin-left: 1rem; line-height: 1.8; color: var(--gray-700);">
+                <li><strong>Salam Sapa Murid Baru</strong></li>
+                <li><strong>Pertemuan Pagi Ceria, Cek Denyut Jantung, & Tes Fleksibilitas:</strong> (90 menit)</li>
+                <li><strong>Eksplorasi Diri:</strong> Menggali potensi yang ada (25 menit)</li>
+                <li><strong>Ruang Perjumpaan Murid Baru:</strong> (90 menit)</li>
+                <li><strong>Sahabat Hebat: Dengar, Peduli, Hargai:</strong> (85 menit)</li>
+                <li><strong>Refleksi, Doa, dan Penutup:</strong> (10 menit)</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Hari 3 -->
+          <div class="material-card">
+            <div class="material-card-header hdr-blue">
+              <div class="material-card-icon">3️⃣</div>
+              <div class="material-card-title">Hari Ketiga</div>
+            </div>
+            <div class="material-card-body">
+              <ol style="margin-left: 1rem; line-height: 1.8; color: var(--gray-700);">
+                <li><strong>Salam Sapa Murid Baru</strong></li>
+                <li><strong>Identifikasi Awal:</strong> Kondisi Sosial-Emosional, Asesmen Literasi Numerasi, & Bakat Minat (115 menit)</li>
+                <li><strong>Membangun Kesiapsiagaan Bencana:</strong> (40 menit)</li>
+                <li><strong>Literasi Digital:</strong> (45 menit)</li>
+                <li><strong>Dampak Negatif Kecanduan Game Online:</strong> (35 menit)</li>
+                <li><strong>Pengenalan Ekstrakurikuler:</strong> (55 menit)</li>
+                <li><strong>Refleksi, Doa, dan Penutup:</strong> (10 menit)</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Hari 4 -->
+          <div class="material-card">
+            <div class="material-card-header hdr-red">
+              <div class="material-card-icon">4️⃣</div>
+              <div class="material-card-title">Hari Keempat</div>
+            </div>
+            <div class="material-card-body">
+              <ol style="margin-left: 1rem; line-height: 1.8; color: var(--gray-700);">
+                <li><strong>Salam Sapa Murid Baru</strong></li>
+                <li><strong>Pengenalan 8 Dimensi Profil Lulusan & Profil Lulusan SMK:</strong> (30 menit)</li>
+                <li><strong>Pengenalan Kurikulum & Motivasi Belajar:</strong> (110 menit)</li>
+                <li><strong>Kegiatan Pilihan:</strong> Bahaya NAPZA & Fenomena Sosial Remaja (45 menit)</li>
+                <li><strong>Gerakan ASRI:</strong> Kerja bakti dan lingkungan bersih (105 menit)</li>
+                <li><strong>Refleksi, Doa, dan Penutup:</strong> (10 menit)</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Hari 5 -->
+          <div class="material-card">
+            <div class="material-card-header" style="background: linear-gradient(135deg, #7c3aed, #4f46e5);">
+              <div class="material-card-icon">5️⃣</div>
+              <div class="material-card-title">Hari Kelima</div>
+            </div>
+            <div class="material-card-body">
+              <ol style="margin-left: 1rem; line-height: 1.8; color: var(--gray-700);">
+                <li><strong>Salam Sapa Murid Baru</strong></li>
+                <li><strong>Pertemuan Pagi Ceria:</strong> (30 menit)</li>
+                <li><strong>Kegiatan Pilihan:</strong> Budaya Kekhasan Sekolah / K3 SMK (30 menit)</li>
+                <li><strong>Unjuk Karya:</strong> Panggung bebas untuk bakat siswa (230 menit)</li>
+                <li><strong>Refleksi, Doa, dan Penutup:</strong> (10 menit)</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-head" style="margin-top: 3.5rem;">
+          <span class="section-eyebrow">📈 BAB IV: Pasca MPLS Ramah</span>
+          <h2 class="section-title-lg">Evaluasi & <span class="accent">Tindak Lanjut</span></h2>
+        </div>
+
+        <div class="modules-grid">
+          <div class="module-card">
+            <div class="module-card-stripe stripe-blue"></div>
+            <div class="module-icon-wrap icon-bg-blue">📝</div>
+            <h3 class="module-card-title">Evaluasi Pelaksanaan</h3>
+            <p class="module-card-desc" style="margin-top: 0.5rem;"></p>
+            <ul style="margin-left:1.2rem; color:var(--gray-600); line-height:1.7; font-size:0.875rem;">
+              <li>Evaluasi oleh sekolah ke Orang Tua/Wali (Maks. 30 hari)</li>
+              <li>Evaluasi ke Dinas Pendidikan/Kementerian (Maks. 30 hari)</li>
+              <li>Pengisian instrumen evaluasi daring Kepala Sekolah & Murid (30-45 sampel) di sistem nasional.</li>
+            </ul>
+          </div>
+
+          <div class="module-card">
+            <div class="module-card-stripe stripe-teal"></div>
+            <div class="module-icon-wrap icon-bg-teal">📊</div>
+            <h3 class="module-card-title">Laporan Hasil Tes</h3>
+            <p class="module-card-desc" style="margin-top: 0.5rem;"></p>
+            <ul style="margin-left:1.2rem; color:var(--gray-600); line-height:1.7; font-size:0.875rem;">
+              <li>Hasil tersedia mulai 31 Juli 2026.</li>
+              <li>Tabel hasil literasi, numerasi, bakat minat, IMT, dan Fleksibilitas (Set 1).</li>
+              <li>Identifikasi kondisi sosial-emosional bersifat rahasia untuk BK (Set 2).</li>
+            </ul>
+          </div>
+
+          <div class="module-card">
+            <div class="module-card-stripe stripe-indigo"></div>
+            <div class="module-icon-wrap icon-bg-indigo">🤝</div>
+            <h3 class="module-card-title">Skrining Khusus</h3>
+            <p class="module-card-desc" style="margin-top: 0.5rem;"></p>
+            <ul style="margin-left:1.2rem; color:var(--gray-600); line-height:1.7; font-size:0.875rem;">
+              <li>Identifikasi kondisi disabilitas / kebutuhan khusus (CIBI, lamban belajar).</li>
+              <li>Bukan diagnosis medis, melainkan dasar layanan & penyesuaian pembelajaran.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB PANEL: KEGIATAN SISWA ── -->
+      <div class="tab-panel" id="tabKegiatan">
+        <div class="section-head">
+          <span class="section-eyebrow">🛠️ Modul Interaktif</span>
+          <h2 class="section-title-lg">Kegiatan <span class="accent">Siswa</span></h2>
+          <p class="section-subtitle-text">Pilihan modul penunjang kegiatan siswa di SMAN 1 Belitang.</p>
+        </div>
+
+        <div class="modules-grid">
+          
+          <a href="modul1.html" class="module-card">
+            <div class="module-card-stripe stripe-blue"></div>
+            <div class="module-icon-wrap icon-bg-blue">⚖️</div>
+            <h3 class="module-card-title">Modul 1: Cek Indeks Massa Tubuh</h3>
+            <p class="module-card-desc">Fasilitas pengukuran dan pemantauan Berat Badan ideal siswa secara berkala.</p>
+            <div class="module-card-arrow">Mulai Mengisi <span class="module-card-arrow-icon">→</span></div>
+          </a>
+
+          <a href="modul2.html" class="module-card">
+            <div class="module-card-stripe stripe-teal"></div>
+            <div class="module-icon-wrap icon-bg-teal">🩺</div>
+            <h3 class="module-card-title">Modul 2: Kesehatan Mandiri</h3>
+            <p class="module-card-desc">Layanan informasi dan pengecekan kesehatan umum bagi siswa baru.</p>
+            <div class="module-card-arrow">Mulai Mengisi <span class="module-card-arrow-icon">→</span></div>
+          </a>
+
+          <a href="modul3.html" class="module-card">
+            <div class="module-card-stripe stripe-indigo"></div>
+            <div class="module-icon-wrap icon-bg-indigo">🎯</div>
+            <h3 class="module-card-title">Modul 3: Potensi Siswa</h3>
+            <p class="module-card-desc">Tes minat dan bakat untuk memetakan potensi dan arah pengembangan akademik maupun non-akademik.</p>
+            <div class="module-card-arrow">Mulai Mengisi <span class="module-card-arrow-icon">→</span></div>
+          </a>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════
+     MOBILE BOTTOM NAVIGATION
+══════════════════════════════ -->
+<nav class="bottom-nav" aria-label="Navigasi Bawah Mobile">
+  <button class="bottom-nav-item active" data-tab-trigger="tabProfil">
+    <span class="nav-icon">👤</span>
+    <span>Profil</span>
+  </button>
+  <button class="bottom-nav-item" data-tab-trigger="tabKetentuan">
+    <span class="nav-icon">📖</span>
+    <span>Ketentuan</span>
+  </button>
+  <button class="bottom-nav-item" data-tab-trigger="tabPelaksanaan">
+    <span class="nav-icon">🚀</span>
+    <span>Jadwal</span>
+  </button>
+  <button class="bottom-nav-item" data-tab-trigger="tabKegiatan">
+    <span class="nav-icon">🛠️</span>
+    <span>Kegiatan</span>
+  </button>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     MODAL: EDIT PROFIL
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="editModalOverlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h4 class="modal-title">⚙️ Edit Profil Siswa</h4>
+      <button class="modal-close" id="closeEditModalBtn">&times;</button>
+    </div>
+    <form id="editProfilForm">
+      <div class="modal-body">
+        
+        <div class="form-group">
+          <label for="editFoto">Foto Profil (Maks 1MB)</label>
+          <input type="file" id="editFoto" class="form-control" accept="image/*" />
+          <div id="fotoPreviewContainer" style="margin-top:0.75rem; display:none; text-align:center;">
+            <img id="fotoPreview" src="" alt="Preview Foto" style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:2px solid var(--blue-500);" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editNama">Nama Lengkap</label>
+          <input type="text" id="editNama" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+          <label for="editTTL">Tempat, Tanggal Lahir (TTL)</label>
+          <input type="text" id="editTTL" class="form-control" placeholder="Contoh: Belitang, 10 Juli 2010" />
+        </div>
+
+        <div class="form-group">
+          <label for="editSekolah">Asal Sekolah</label>
+          <input type="text" id="editSekolah" class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label for="editNISN">NISN</label>
+          <input type="text" id="editNISN" class="form-control" maxlength="10" placeholder="10 digit NISN" />
+        </div>
+
+        <div class="form-group">
+          <label for="editNIS">NIS</label>
+          <input type="text" id="editNIS" class="form-control" maxlength="10" placeholder="Nomor Induk Siswa" />
+        </div>
+
+        <div class="form-group">
+          <label for="editWA">No. WhatsApp</label>
+          <input type="text" id="editWA" class="form-control" placeholder="Contoh: 0812-3456-7890" />
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancelEditBtn">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // ── Session Checking ──
+  let session = getSiswaSession();
+  if (!session) {
+    window.location.href = 'login_siswa.html';
+  }
+
+  // Load fresh student data from localStorage based on username
+  const currentDB = JSON.parse(localStorage.getItem('sapa_siswa_db') || '[]');
+  const studentData = currentDB.find(s => s.username.toUpperCase() === session.username.toUpperCase()) || session;
+
+  // ── Populate Text Content ──
+  document.getElementById('siswaNamaHeader').textContent = studentData.nama;
+  document.getElementById('siswaNama').textContent = studentData.nama;
+  document.getElementById('siswaUsername').textContent = studentData.username;
+  document.getElementById('siswaPeletonBadge').textContent = studentData.peleton;
+  document.getElementById('siswaPeleton').textContent = studentData.peleton;
+  document.getElementById('siswaSekolah').textContent = studentData.asal_sekolah;
+  document.getElementById('siswaGender').textContent = studentData.gender;
+
+  // Sidebar header info
+  document.getElementById('sidebarStudentNama').textContent = studentData.nama;
+  document.getElementById('sidebarStudentPeleton').textContent = studentData.peleton;
+
+  // Helper for empty fields display
+  function setField(id, value) {
+    const el = document.getElementById(id);
+    if (value && value.trim() !== "") {
+      el.textContent = value;
+      el.classList.remove('empty');
+    } else {
+      el.textContent = "Belum Diisi";
+      el.classList.add('empty');
+    }
+  }
+
+  setField('siswaTTL', studentData.ttl);
+  setField('siswaNISN', studentData.nisn);
+  setField('siswaNIS', studentData.nis);
+
+  // WhatsApp link dynamic render
+  const waContainer = document.getElementById('siswaWAContainer');
+  if (studentData.no_wa && studentData.no_wa.trim() !== "") {
+    const cleanWA = studentData.no_wa.replace(/[^0-9]/g, '');
+    const waUrl = `https://wa.me/62${cleanWA.slice(1)}`;
+    waContainer.innerHTML = `
+      <a href="${waUrl}" class="wa-link" target="_blank">
+        <svg style="width:16px;height:16px;fill:currentColor;" viewBox="0 0 24 24">
+          <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.993L2 22l5.233-1.371a9.92 9.92 0 0 0 4.777 1.222h.005c5.505 0 9.989-4.478 9.99-9.984A9.99 9.99 0 0 0 12.012 2zm4.935 14.194c-.273.771-1.341 1.48-1.848 1.583-.464.095-.916.208-2.977-.643-2.637-1.087-4.312-3.76-4.443-3.935-.13-.175-1.055-1.402-1.055-2.675 0-1.272.666-1.897.903-2.154.237-.257.518-.32.69-.32.172 0 .345.002.496.009.157.008.367-.06.574.453.214.53.732 1.785.797 1.916.065.13.108.28.022.453-.086.173-.13.28-.259.432-.129.153-.271.342-.387.458-.129.129-.264.27-.113.53.15.26.664 1.096 1.424 1.773.978.87 1.8.1.139 2.014.237.215.086.452-.043.68-.129.227-.517.604-1.077 1.077-.474.473-.637.796-.108 1.13.53.333 3.36 1.677 3.425 1.807.065.13.065.65.195 1.057.13.407.387.771.114 1.542z"/>
+        </svg>
+        <span>${studentData.no_wa}</span>
+      </a>
+    `;
+  } else {
+    waContainer.innerHTML = `<span class="info-value empty">Belum Diisi</span>`;
+  }
+
+  // ── Render Avatars (Sidebar + Main) ──
+  const avatarContainer = document.getElementById('siswaAvatar');
+  const sidebarAvatarContainer = document.getElementById('sidebarStudentAvatar');
+  
+  function renderAvatars() {
+    let imgHtml = '';
+    if (studentData.foto && studentData.foto.trim() !== "") {
+      imgHtml = `<img src="${studentData.foto}" alt="Foto Profil" />`;
+    } else if (studentData.gender.toUpperCase() === 'PEREMPUAN') {
+      imgHtml = `
+        <svg viewBox="0 0 128 128" style="width:100%;height:100%;">
+          <defs>
+            <linearGradient id="femaleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ec4899" />
+              <stop offset="100%" stop-color="#be185d" />
+            </linearGradient>
+          </defs>
+          <circle cx="64" cy="64" r="64" fill="url(#femaleGrad)" />
+          <path d="M36 50 C36 30 92 30 92 50 L96 74 C96 85 90 94 88 94 L40 94 C38 94 32 85 32 74 Z" fill="#1a202c" />
+          <path d="M64 34 C52 34 48 46 48 56 C48 66 54 72 64 72 C74 72 80 66 80 56 C80 46 76 34 64 34 Z" fill="#ffe0bd" />
+          <path d="M48 40 C52 34 60 32 64 34 C68 32 76 34 80 40 C80 40 82 46 80 46 C76 42 68 40 64 42 C60 40 52 42 48 46 C46 46 48 40 48 40 Z" fill="#1a202c" />
+          <path d="M30 110 C30 94 44 82 64 82 C84 82 98 94 98 110 Z" fill="#4f46e5" />
+          <path d="M64 82 L54 94 L64 104 L74 94 Z" fill="#ffe0bd" />
+          <circle cx="64" cy="88" r="4" fill="#facc15" />
+        </svg>
+      `;
+    } else {
+      imgHtml = `
+        <svg viewBox="0 0 128 128" style="width:100%;height:100%;">
+          <defs>
+            <linearGradient id="maleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#3b82f6" />
+              <stop offset="100%" stop-color="#1d4ed8" />
+            </linearGradient>
+          </defs>
+          <circle cx="64" cy="64" r="64" fill="url(#maleGrad)" />
+          <path d="M64 30 C50 30 46 44 46 54 C46 64 54 70 64 70 C74 70 82 64 82 54 C82 44 78 30 64 30 Z" fill="#ffdbac" />
+          <path d="M64 26 C52 26 44 32 44 42 C44 44 46 44 48 42 C52 38 60 36 64 38 C68 36 76 38 80 42 C82 44 84 44 84 42 C84 32 76 26 64 26 Z" fill="#1f2937" />
+          <path d="M30 110 C30 94 44 82 64 82 C84 82 98 94 98 110 Z" fill="#0284c7" />
+          <path d="M64 82 L54 94 L64 104 L74 94 Z" fill="#ffdbac" />
+          <path d="M54 94 L64 96 L74 94 L64 82 Z" fill="#ffffff" />
+        </svg>
+      `;
+    }
+    
+    avatarContainer.innerHTML = imgHtml;
+    sidebarAvatarContainer.innerHTML = imgHtml;
+  }
+  renderAvatars();
+
+  // ── Tab Navigation Logic ──
+  const tabTitles = {
+    'tabProfil': '👤 Profil Siswa',
+    'tabKetentuan': '📖 Ketentuan Umum',
+    'tabPelaksanaan': '🚀 Pelaksanaan Kegiatan',
+    'tabKegiatan': '🛠️ Kegiatan Siswa'
+  };
+
+  function switchTab(tabId) {
+    // Update sidebar active state
+    document.querySelectorAll('.sidebar-nav-item').forEach(i => {
+      if (i.dataset.tabTrigger === tabId) {
+        i.classList.add('active');
+        i.setAttribute('aria-current', 'page');
+      } else {
+        i.classList.remove('active');
+        i.removeAttribute('aria-current');
+      }
+    });
+
+    // Update bottom nav active state
+    document.querySelectorAll('.bottom-nav-item').forEach(i => {
+      if (i.dataset.tabTrigger === tabId) {
+        i.classList.add('active');
+      } else {
+        i.classList.remove('active');
+      }
+    });
+
+    // Update tab panels active state
+    document.querySelectorAll('.tab-panel').forEach(p => {
+      if (p.id === tabId) {
+        p.classList.add('active');
+      } else {
+        p.classList.remove('active');
+      }
+    });
+
+    // Update topbar title
+    document.getElementById('topbarTitle').textContent = tabTitles[tabId] || 'Portal Siswa';
+
+    // Scroll top
+    document.querySelector('.dashboard-main').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Bind sidebar items
+  document.querySelectorAll('.sidebar-nav-item[data-tab-trigger]').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchTab(item.dataset.tabTrigger);
+    });
+  });
+
+  // Bind bottom nav items
+  document.querySelectorAll('.bottom-nav-item[data-tab-trigger]').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchTab(item.dataset.tabTrigger);
+    });
+  });
+
+  // Check URL parameters for tab redirections
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedTab = urlParams.get('tab');
+  if (requestedTab) {
+    let targetId = 'tabProfil';
+    if (requestedTab === 'ketentuan') targetId = 'tabKetentuan';
+    else if (requestedTab === 'pelaksanaan') targetId = 'tabPelaksanaan';
+    else if (requestedTab === 'kegiatan') targetId = 'tabKegiatan';
+
+    switchTab(targetId);
+  }
+
+  // ── Edit Profile Modal Logic ──
+  const editModalOverlay = document.getElementById('editModalOverlay');
+  const openEditModalBtn = document.getElementById('openEditModalBtn');
+  const closeEditModalBtn = document.getElementById('closeEditModalBtn');
+  const cancelEditBtn = document.getElementById('cancelEditBtn');
+  const fotoPreviewContainer = document.getElementById('fotoPreviewContainer');
+  const fotoPreview = document.getElementById('fotoPreview');
+  let base64Foto = studentData.foto || '';
+
+  function openModal() {
+    document.getElementById('editNama').value = studentData.nama;
+    document.getElementById('editTTL').value = studentData.ttl || '';
+    document.getElementById('editSekolah').value = studentData.asal_sekolah || '';
+    document.getElementById('editNISN').value = studentData.nisn || '';
+    document.getElementById('editNIS').value = studentData.nis || '';
+    document.getElementById('editWA').value = studentData.no_wa || '';
+    base64Foto = studentData.foto || '';
+
+    if (base64Foto) {
+      fotoPreview.src = base64Foto;
+      fotoPreviewContainer.style.display = 'block';
+    } else {
+      fotoPreviewContainer.style.display = 'none';
+    }
+
+    editModalOverlay.classList.add('active');
+  }
+
+  function closeModal() {
+    editModalOverlay.classList.remove('active');
+    document.getElementById('editFoto').value = '';
+  }
+
+  openEditModalBtn.addEventListener('click', openModal);
+  closeEditModalBtn.addEventListener('click', closeModal);
+  cancelEditBtn.addEventListener('click', closeModal);
+
+  // File upload reader
+  document.getElementById('editFoto').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 1024 * 1024) {
+        alert('Ukuran file foto maksimal 1MB!');
+        e.target.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        base64Foto = evt.target.result;
+        fotoPreview.src = base64Foto;
+        fotoPreviewContainer.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Profile Save
+  document.getElementById('editProfilForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const updatedProfile = {
+      nama: document.getElementById('editNama').value.trim(),
+      ttl: document.getElementById('editTTL').value.trim(),
+      asal_sekolah: document.getElementById('editSekolah').value.trim(),
+      nisn: document.getElementById('editNISN').value.trim(),
+      nis: document.getElementById('editNIS').value.trim(),
+      no_wa: document.getElementById('editWA').value.trim(),
+      foto: base64Foto
+    };
+
+    const res = updateSiswaProfile(studentData.username, updatedProfile);
+    if (res.success) {
+      alert('Profil Anda berhasil diperbarui!');
+      closeModal();
+      window.location.reload();
+    } else {
+      alert('Gagal menyimpan perubahan profil.');
+    }
+  });
+
+  // ── Logout Action ──
+  function handleLogout() {
+    logoutSiswa();
+    window.location.href = 'login_siswa.html';
+  }
+  document.getElementById('sidebarLogoutBtn').addEventListener('click', handleLogout);
+  document.getElementById('topbarLogoutBtn').addEventListener('click', handleLogout);
+
+  // ── Date Display ──
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('id-ID', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('topbarDate').textContent = dateStr;
+</script>
+</body>
+</html>
