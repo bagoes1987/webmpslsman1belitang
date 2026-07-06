@@ -494,11 +494,21 @@ document.addEventListener('DOMContentLoaded', function () {
     URL.revokeObjectURL(url);
   };
 
-  // ── Mobile sidebar toggle ───────────────────────────────────
+  // ── Mobile sidebar toggle & Overlay ─────────────────────────
   const sidebarToggle = document.getElementById('sidebarToggle');
   const sidebar = document.querySelector('.sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
   if (sidebarToggle && sidebar) {
-    sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      if (sidebarOverlay) sidebarOverlay.classList.toggle('visible');
+    });
+  }
+  if (sidebarOverlay && sidebar) {
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('visible');
+    });
   }
 
   // ── Export CSV ──────────────────────────────────────────────

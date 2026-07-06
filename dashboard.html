@@ -93,9 +93,44 @@
     }
     .sidebar-overlay.visible { display: block; }
 
+    .overview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+    }
+
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
+      .overview-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .topbar-date { display: none !important; }
+      .dashboard-topbar {
+        padding: 0 var(--space-3) !important;
+        gap: 0.5rem;
+      }
+      .topbar-title {
+        font-size: 0.95rem !important;
+      }
+      .topbar-right {
+        gap: 0.35rem !important;
+      }
+      .topbar-right .btn {
+        padding: 0.35rem 0.5rem !important;
+        font-size: 0.75rem !important;
+      }
+      .table-search {
+        flex-direction: column;
+        align-items: stretch !important;
+      }
+      .filter-box {
+        width: 100%;
+      }
+      .filter-box select {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -229,7 +264,7 @@
         </div>
 
         <!-- Row: Charts + Recent Activity -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6);">
+        <div class="overview-grid">
 
           <!-- Karakter Distribution -->
           <div class="dash-card">
