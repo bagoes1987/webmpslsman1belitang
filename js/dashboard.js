@@ -66,6 +66,9 @@ document.addEventListener('DOMContentLoaded', function () {
           renderTableCKG(ckgData);
         }
       }
+      if (typeof updateStatistics === 'function') {
+        updateStatistics();
+      }
     } catch (e) {
       console.warn("Failed to sync admin data with MySQL server:", e);
     }
@@ -80,8 +83,11 @@ document.addEventListener('DOMContentLoaded', function () {
     ckgData = [];
   }
 
-  // Run sync in background
+  // Run sync in background on load
   syncAdminDataFromServer();
+
+  // Poll server for updates every 15 seconds to keep data live automatically
+  setInterval(syncAdminDataFromServer, 15000);
 
   // ── Logout Handler ──────────────────────────────────────────
   document.querySelectorAll('[data-logout]').forEach(btn => {
@@ -95,16 +101,20 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // ── Statistics ─────────────────────────────────────────────
-  const totalMurid   = muridData.length;
-  const sudahCKG     = ckgData.length;
-  const belumCKG     = Math.max(0, totalMurid - sudahCKG);
-  const butuhABK     = muridData.filter(m => m.abk && m.abk !== 'non-abk').length;
-  const butuhPendamp = muridData.filter(m => m.pendampingan === 'Ya').length;
+  function updateStatistics() {
+    const totalSiswaCount = registrasiData.length;
+    const sudahCKGCount     = ckgData.length;
+    const belumCKGCount     = Math.max(0, totalSiswaCount - sudahCKGCount);
+    const butuhABKCount     = muridData.filter(m => m.abk && m.abk !== 'non-abk').length;
 
-  setCount('statTotal',   totalMurid);
-  setCount('statCKG',     sudahCKG);
-  setCount('statBelumCKG',belumCKG);
-  setCount('statABK',     butuhABK);
+    setCount('statTotal',   totalSiswaCount);
+    setCount('statCKG',     sudahCKGCount);
+    setCount('statBelumCKG',belumCKGCount);
+    setCount('statABK',     butuhABKCount);
+  }
+
+  // Initial stats calculation
+  updateStatistics();
 
   // ── Date / Time ────────────────────────────────────────────
   const now = new Date();
@@ -372,11 +382,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }).join('');
   }
 
-  // Populate peleton filter dropdown dynamically
+  // Populate peleton filter dropdown dynamically with natural numerical sorting (Peleton 1 to 11)
   function populatePeletonFilter(data) {
     if (!peletonFilter) return;
     const currentVal = peletonFilter.value;
-    const uniquePeletons = [...new Set(data.map(s => s.peleton).filter(Boolean))].sort();
+    const uniquePeletons = [...new Set(data.map(s => s.peleton).filter(Boolean))].sort((a, b) => {
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    });
     peletonFilter.innerHTML = '<option value="">✨ Semua Peleton</option>' + 
       uniquePeletons.map(p => `<option value="${p}">${p}</option>`).join('');
     if (uniquePeletons.includes(currentVal)) {
