@@ -154,8 +154,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Hardcode API Key terbaru dari cURL
-      const apiKey = 'AQ.Ab8RN6JWh8SG8T0YgVROxQK8kH1x7PCieeNk6hu5wTIyaEIaxA';
+      // API Key is handled securely on the server-side via api.php
+      const apiKey = '';
 
       ckgQuizForm.classList.add('hidden');
       ckgLoading.classList.remove('hidden');
@@ -253,18 +253,13 @@ Berikan saran medis ringan dan panduan gaya hidup sehat apa yang cocok untuk sis
           aiLoading.style.display = 'flex';
           aiResultText.style.display = 'none';
 
-          // Gunakan x-goog-api-key header yang merupakan standar baku
-          let fetchUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
-          let fetchHeaders = { 
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey
-          };
-
-          fetch(fetchUrl, {
+          // Proxy request via api.php to protect the API key from public exposure
+          fetch('api.php?action=gemini_proxy', {
             method: 'POST',
-            headers: fetchHeaders,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              contents: [{ parts: [{ text: promptText }] }]
+              action: 'gemini_proxy',
+              prompt: promptText
             })
           })
           .then(res => res.json())
@@ -312,6 +307,25 @@ Berikan saran medis ringan dan panduan gaya hidup sehat apa yang cocok untuk sis
         let ckgList = JSON.parse(localStorage.getItem('sapa_ckg') || '[]');
         ckgList.push(data);
         localStorage.setItem('sapa_ckg', JSON.stringify(ckgList));
+
+        // Sync CKG to Hostinger MySQL Database
+        const activeSess = JSON.parse(sessionStorage.getItem("sapa_siswa_session") || "null");
+        fetch('api.php?action=save_ckg', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'save_ckg',
+            data: {
+              nama: data.nama,
+              nisn: activeSess ? (activeSess.nisn || '') : '',
+              kelas: data.kelas,
+              nohp: activeSess ? (activeSess.no_wa || '') : '',
+              waktu: data.waktu
+            }
+          })
+        }).then(r => r.json())
+          .then(json => console.log("MySQL CKG Sync: ", json.message))
+          .catch(err => console.error("MySQL CKG Sync failed: ", err));
 
       }, 1500);
     });
@@ -395,6 +409,38 @@ Berikan saran medis ringan dan panduan gaya hidup sehat apa yang cocok untuk sis
         wizardData.waktu = new Date().toLocaleString('id-ID');
         existing.push(wizardData);
         localStorage.setItem('sapa_murid', JSON.stringify(existing));
+
+        // Sync Deteksi Dini to Hostinger MySQL Database
+        fetch('api.php?action=save_deteksi_dini', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'save_deteksi_dini',
+            data: {
+              nama: wizardData.nama || '',
+              nisn: wizardData.nisn || '',
+              kelas: wizardData.kelas || '',
+              karakter: wizardData.karakter || '',
+              agama: wizardData.agama || '',
+              suku: wizardData.suku || '',
+              ekonomi: wizardData.ekonomi || '',
+              pengasuh: wizardData.pengasuh || '',
+              gayaBelajar: wizardData.gayaBelajar || '',
+              minatBelajar: wizardData.minatBelajar || '',
+              hambatanBelajar: wizardData.hambatanBelajar || '',
+              pendampingan: wizardData.pendampingan || '',
+              alergi: wizardData.alergi || '',
+              ciriFisik: wizardData.ciriFisik || '',
+              abk: wizardData.abk || '',
+              waktu: wizardData.waktu,
+              ttl_tempat: wizardData.ttl_tempat || '',
+              ttl_tanggal: wizardData.ttl_tanggal || ''
+            }
+          })
+        }).then(r => r.json())
+          .then(json => console.log("MySQL Deteksi Dini Sync: ", json.message))
+          .catch(err => console.error("MySQL Deteksi Dini Sync failed: ", err));
+
         wizardBody.classList.add('hidden');
         wizardSuccess.classList.remove('hidden');
         wizardSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });

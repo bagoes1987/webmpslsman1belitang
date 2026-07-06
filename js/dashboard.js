@@ -19,11 +19,57 @@ document.addEventListener('DOMContentLoaded', function () {
   const userName = sessionStorage.getItem('sapa_admin_session') || 'Admin';
   document.querySelectorAll('[data-admin-name]').forEach(el => el.textContent = userName);
 
-  // ── Load Data ──────────────────────────────────────────────
+  // ── Load Data & Remote Sync ────────────────────────────────
   let muridData = JSON.parse(localStorage.getItem('sapa_murid') || '[]');
   let ckgData   = JSON.parse(localStorage.getItem('sapa_ckg')   || '[]');
+  let registrasiData = JSON.parse(localStorage.getItem('sapa_siswa_db') || '[]');
 
-  // ── Seed demo data if empty ────────────────────────────────
+  async function syncAdminDataFromServer() {
+    try {
+      // Sync siswa
+      const resSiswa = await fetch('api.php?action=get_siswa');
+      const jsonSiswa = await resSiswa.json();
+      if (jsonSiswa.status === 'success' && jsonSiswa.data) {
+        localStorage.setItem('sapa_siswa_db', JSON.stringify(jsonSiswa.data));
+        registrasiData = jsonSiswa.data;
+        if (typeof renderRegistrasiTable === 'function') {
+          renderRegistrasiTable(registrasiData);
+        }
+      }
+      
+      // Sync deteksi dini (murid)
+      const resMurid = await fetch('api.php?action=get_deteksi_dini');
+      const jsonMurid = await resMurid.json();
+      if (jsonMurid.status === 'success' && jsonMurid.data) {
+        localStorage.setItem('sapa_murid', JSON.stringify(jsonMurid.data));
+        muridData = jsonMurid.data;
+        if (typeof renderTable === 'function') {
+          renderTable(muridData);
+        }
+        if (typeof renderKarakterChart === 'function') {
+          renderKarakterChart(muridData);
+        }
+      }
+
+      // Sync CKG
+      const resCkg = await fetch('api.php?action=get_ckg');
+      const jsonCkg = await resCkg.json();
+      if (jsonCkg.status === 'success' && jsonCkg.data) {
+        localStorage.setItem('sapa_ckg', JSON.stringify(jsonCkg.data));
+        ckgData = jsonCkg.data;
+        if (typeof renderTableCKG === 'function') {
+          renderTableCKG(ckgData);
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to sync admin data with MySQL server:", e);
+    }
+  }
+
+  // Run sync in background
+  syncAdminDataFromServer();
+
+  // ── Seed demo data if empty (Fallback) ──────────────────────
   if (muridData.length === 0) {
     muridData = getDemoMurid();
     localStorage.setItem('sapa_murid', JSON.stringify(muridData));
@@ -245,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const registrasiSearch = document.getElementById('registrasiSearch');
   
   // Load data from sapa_siswa_db
-  let registrasiData = JSON.parse(localStorage.getItem('sapa_siswa_db') || '[]');
+  registrasiData = JSON.parse(localStorage.getItem('sapa_siswa_db') || '[]');
 
   function renderRegistrasiTable(data) {
     if (!registrasiTbody) return;

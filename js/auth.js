@@ -5181,6 +5181,54 @@ function requireLogin() {
   }
 }
 
+// ── Sync Database with Remote Hostinger MySQL ──
+async function syncDatabaseWithServer() {
+  try {
+    const res = await fetch('api.php?action=get_siswa');
+    const json = await res.json();
+    if (json.status === 'success' && json.data) {
+      localStorage.setItem('sapa_siswa_db', JSON.stringify(json.data));
+      // Update active session if logged in
+      const currentSession = getSiswaSession();
+      if (currentSession) {
+        const freshData = json.data.find(s => s.username.toUpperCase() === currentSession.username.toUpperCase());
+        if (freshData) {
+          sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(freshData));
+        }
+      }
+      return true;
+    }
+  } catch (e) {
+    console.warn("MySQL sync offline: " + e.message);
+  }
+  return false;
+}
+
+async function initDatabaseServer() {
+  try {
+    const res = await fetch('api.php?action=setup');
+    const json = await res.json();
+    if (json.status === 'success') {
+      if (json.is_empty) {
+        console.log("MySQL database is empty. Initializing with default accounts...");
+        const importRes = await fetch('api.php?action=import_siswa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'import_siswa', data: REGISTERED_SISWA })
+        });
+        const importJson = await importRes.json();
+        console.log(importJson.message);
+      }
+      await syncDatabaseWithServer();
+    }
+  } catch (e) {
+    console.warn("MySQL server connection skipped: " + e.message);
+  }
+}
+
+// Auto-run database setup check in background
+initDatabaseServer();
+
 // ── Update profile siswa di database local ──
 function updateSiswaProfile(username, profileData) {
   const db = JSON.parse(localStorage.getItem('sapa_siswa_db') || '[]');
@@ -5197,6 +5245,20 @@ function updateSiswaProfile(username, profileData) {
         ...profileData
       }));
     }
+
+    // Sync to remote MySQL Database asynchronously
+    fetch('api.php?action=update_profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'update_profile',
+        username: username,
+        profile: profileData
+      })
+    }).then(res => res.json())
+      .then(json => console.log("Hostinger DB Sync: ", json.message))
+      .catch(err => console.error("Hostinger DB Sync Failed: ", err));
+
     return { success: true };
   }
   return { success: false };
