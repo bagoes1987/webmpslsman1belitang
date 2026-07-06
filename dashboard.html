@@ -99,10 +99,26 @@
       gap: var(--space-6);
     }
 
+    /* Sidebar Hamburger Toggle Styling Overrides for light topbar */
+    #sidebarToggle {
+      display: none !important;
+      background: var(--gray-100) !important;
+      border: 1px solid var(--gray-300) !important;
+      flex-direction: column;
+      justify-content: center;
+      align-items: stretch;
+      gap: 4px;
+      padding: 8px 10px;
+    }
+    #sidebarToggle span {
+      background: var(--gray-800) !important;
+    }
+
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
       .overview-grid { grid-template-columns: 1fr; }
+      #sidebarToggle { display: flex !important; }
     }
 
     @media (max-width: 640px) {
